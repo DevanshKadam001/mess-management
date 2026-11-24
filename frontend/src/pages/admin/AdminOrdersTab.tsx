@@ -170,10 +170,13 @@ export const AdminOrdersTab: React.FC = () => {
         )}
       </div>
 
-      <InvoiceModal
-        order={selectedInvoice}
-        onClose={() => setSelectedInvoice(null)}
-      />
+      {selectedInvoice && (
+        <InvoiceModal
+          order={selectedInvoice}
+          isOpen={true}
+          onClose={() => setSelectedInvoice(null)}
+        />
+      )}
     </div>
   );
 };

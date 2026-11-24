@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Order } from '../types';
-import { X, Printer, CheckCircle, Store, UserCheck, UtensilsCrossed } from 'lucide-react';
+import { X, Printer, CheckCircle, Store, UserCheck, UtensilsCrossed, ArrowLeft } from 'lucide-react';
 
 interface InvoiceModalProps {
   order: Order | null;
+  isOpen?: boolean;
   onClose: () => void;
 }
 
-export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
-  if (!order) return null;
+export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, isOpen, onClose }) => {
+  if (!order || isOpen === false) return null;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const handlePrint = () => {
     window.print();
@@ -30,14 +41,21 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) =>
           </span>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handlePrint}
               className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
             >
               <Printer className="w-3.5 h-3.5" /> Print Invoice
             </button>
             <button
-              onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-200 transition"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200 transition cursor-pointer"
+              title="Close Receipt (Esc)"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -185,6 +203,24 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) =>
           {/* Footer message */}
           <div className="text-center pt-2 border-t border-slate-100 text-[11px] text-slate-400">
             Thank you for ordering with Smart Canteen. Please show this receipt or your pickup OTP at the food counter.
+          </div>
+
+          {/* Action buttons (hidden during print) */}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between print:hidden">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to Order Tracker
+            </button>
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" /> Print Receipt
+            </button>
           </div>
         </div>
       </div>

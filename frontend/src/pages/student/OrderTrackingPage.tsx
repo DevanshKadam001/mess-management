@@ -127,8 +127,9 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({
       {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <button
+          type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Menu
         </button>
@@ -413,10 +414,13 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({
       )}
 
       {/* Invoice Modal */}
-      <InvoiceModal
-        order={order}
-        onClose={() => setShowInvoice(false)}
-      />
+      {showInvoice && (
+        <InvoiceModal
+          order={order}
+          isOpen={showInvoice}
+          onClose={() => setShowInvoice(false)}
+        />
+      )}
     </div>
   );
 };

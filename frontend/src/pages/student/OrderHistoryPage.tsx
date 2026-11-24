@@ -245,10 +245,13 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
       )}
 
       {/* Invoice Modal */}
-      <InvoiceModal
-        order={selectedInvoiceOrder}
-        onClose={() => setSelectedInvoiceOrder(null)}
-      />
+      {selectedInvoiceOrder && (
+        <InvoiceModal
+          order={selectedInvoiceOrder}
+          isOpen={true}
+          onClose={() => setSelectedInvoiceOrder(null)}
+        />
+      )}
     </div>
   );
 };
