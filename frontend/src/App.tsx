@@ -25,6 +25,7 @@ import { RegisterPage } from './pages/auth/RegisterPage';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
+  const { setIsOpen: setCartOpen } = useCart();
   const [currentTab, setCurrentTab] = useState<string>('home');
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -32,6 +33,9 @@ const AppContent: React.FC = () => {
   const handleNavigate = (tab: string, param?: string) => {
     if (tab === 'order-tracking' && param) {
       setActiveOrderId(param);
+    }
+    if (tab === 'login' || tab === 'register') {
+      setCartOpen(false);
     }
     setCurrentTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -68,11 +72,13 @@ const AppContent: React.FC = () => {
         onSearchChange={currentTab === 'home' ? setSearchQuery : undefined}
       />
 
-      {/* Cart Drawer */}
-      <CartDrawer
-        onCheckout={() => handleNavigate('checkout')}
-        onBrowseMenu={() => handleNavigate('home')}
-      />
+      {/* Cart Drawer - hidden during sign in / sign up */}
+      {currentTab !== 'login' && currentTab !== 'register' && (
+        <CartDrawer
+          onCheckout={() => handleNavigate('checkout')}
+          onBrowseMenu={() => handleNavigate('home')}
+        />
+      )}
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex-1 w-full">

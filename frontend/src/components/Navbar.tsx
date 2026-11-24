@@ -169,8 +169,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
 
-            {/* Shopping Cart button (for students/faculty or guests) */}
-            {(!user || user.role === 'STUDENT' || user.role === 'FACULTY') && (
+            {/* Shopping Cart button (for students/faculty or guests, hidden during login/signup) */}
+            {currentTab !== 'login' && currentTab !== 'register' && (!user || user.role === 'STUDENT' || user.role === 'FACULTY') && (
               <button
                 onClick={() => setCartOpen(true)}
                 className="relative px-3.5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl text-xs font-bold shadow-md shadow-orange-500/20 transition flex items-center gap-2 active:scale-95"
