@@ -1,0 +1,241 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User model for Students, Faculty, Vendors, and Administrators
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  phone         String?
+  role          String         @default("STUDENT") // STUDENT, FACULTY, VENDOR, ADMIN
+  department    String?        // e.g. "Computer Science", "Mechanical", "Administration"
+  roomNumber    String?        // e.g. "Hostel Block B-204" or "Staff Room 301"
+  avatarUrl     String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  vendorProfile Vendor?
+  orders        Order[]
+  cart          Cart?
+  notifications Notification[]
+}
+
+// Canteen Vendor Stall profile
+model Vendor {
+  id           String        @id @default(uuid())
+  userId       String        @unique
+  stallName    String
+  description  String?
+  location     String?       // e.g. "Main Campus Ground Floor", "Food Court Stall #2"
+  isOpen       Boolean       @default(true)
+  phone        String?
+  bannerImage  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products     Product[]
+  ingredients  Ingredient[]
+  orders       Order[]
+}
+
+// Food Categories
+model Category {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  description  String?
+  imageUrl     String?
+  icon         String?       // Lucide icon name e.g. "Coffee", "Utensils", "Pizza", "Apple"
+  displayOrder Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  products     Product[]
+}
+
+// Food Product Items
+model Product {
+  id              String              @id @default(uuid())
+  vendorId        String
+  categoryId      String
+  name            String
+  description     String
+  price           Float
+  imageUrl        String
+  isVeg           Boolean             @default(true)
+  isAvailable     Boolean             @default(true)
+  preparationTime Int                 @default(15) // in minutes
+  calories        Int?
+  badge           String?             // e.g. "Chef's Special", "Bestseller", "Trending"
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relations
+  vendor          Vendor              @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  category        Category            @relation(fields: [categoryId], references: [id])
+  ingredients     ProductIngredient[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+}
+
+// Raw Ingredients for Inventory Management
+model Ingredient {
+  id            String                 @id @default(uuid())
+  vendorId      String
+  name          String
+  quantity      Float                  // Current available stock
+  unit          String                 // "kg", "g", "liter", "ml", "pcs"
+  minThreshold  Float                  // Alert threshold for low-stock
+  costPerUnit   Float                  // Purchase cost per unit in ₹
+  lastRestocked DateTime?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  // Relations
+  vendor        Vendor                 @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  productUses   ProductIngredient[]
+  transactions  InventoryTransaction[]
+}
+
+// Recipe linkage: How much of each ingredient is required per 1 unit of product
+model ProductIngredient {
+  id               String     @id @default(uuid())
+  productId        String
+  ingredientId     String
+  quantityRequired Float      // e.g. 0.15 (150g or 150ml)
+
+  // Relations
+  product          Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingredient       Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, ingredientId])
+}
+
+// Inventory Stock Transactions (Restock, Order deduction, Adjustment)
+model InventoryTransaction {
+  id            String      @id @default(uuid())
+  ingredientId  String
+  orderId       String?
+  type          String      // "RESTOCK", "ORDER_CONSUMPTION", "MANUAL_ADJUSTMENT", "WASTAGE"
+  quantity      Float       // positive for addition, negative for deduction
+  previousStock Float
+  newStock      Float
+  note          String?
+  createdAt     DateTime    @default(now())
+
+  // Relations
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  order         Order?      @relation(fields: [orderId], references: [id], onDelete: SetNull)
+}
+
+// User Shopping Cart
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+}
+
+// Customer Orders
+model Order {
+  id                   String                 @id @default(uuid())
+  orderNumber          String                 @unique // e.g. "CAN-84920"
+  userId               String
+  vendorId             String
+  status               String                 @default("PLACED") // "PLACED", "ACCEPTED", "PREPARING", "READY", "COLLECTED", "CANCELLED"
+  totalAmount          Float                  // Subtotal
+  taxAmount            Float                  // e.g. 5% GST
+  discountAmount       Float                  @default(0)
+  finalAmount          Float                  // Total to pay
+  paymentMethod        String                 @default("UPI") // "CASH", "UPI"
+  paymentStatus        String                 @default("PENDING") // "PENDING", "COMPLETED", "FAILED"
+  pickupOtp            String                 // 4 digit verification code e.g. "4821"
+  notes                String?
+  estimatedPrepMinutes Int                    @default(15)
+  cancelledReason      String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  // Relations
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor               Vendor                 @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  items                OrderItem[]
+  payment              Payment?
+  inventoryLogs        InventoryTransaction[]
+}
+
+// Individual Items in an Order
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  productId   String
+  productName String   // snapshot
+  unitPrice   Float    // snapshot
+  quantity    Int
+  subtotal    Float
+
+  // Relations
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+}
+
+// Payment Records
+model Payment {
+  id            String    @id @default(uuid())
+  orderId       String    @unique
+  method        String    // "CASH", "UPI"
+  status        String    @default("PENDING") // "PENDING", "COMPLETED", "FAILED"
+  transactionId String?
+  amount        Float
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// Real-time and persistent Notifications
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("ORDER_STATUS") // "ORDER_STATUS", "LOW_STOCK", "PAYMENT", "SYSTEM"
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
