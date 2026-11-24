@@ -12,10 +12,15 @@ import {
   CheckCircle,
   AlertCircle,
   Save,
+  LogOut,
 } from 'lucide-react';
 
-export const ProfilePage: React.FC = () => {
-  const { user, updateUser } = useAuth();
+interface ProfilePageProps {
+  onNavigateHome?: () => void;
+}
+
+export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigateHome }) => {
+  const { user, updateUser, logout } = useAuth();
 
   const [name, setName] = useState<string>(user?.name || '');
   const [phone, setPhone] = useState<string>(user?.phone || '');
@@ -277,6 +282,24 @@ export const ProfilePage: React.FC = () => {
             {changingPassword ? 'Updating...' : 'Update Password'}
           </button>
         </form>
+      </div>
+
+      {/* Account Session & Sign Out */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="font-bold text-xs text-slate-900">Signed In As {user.email}</h4>
+          <p className="text-[11px] text-slate-500">End your active session and return to the home page.</p>
+        </div>
+        <button
+          onClick={() => {
+            logout();
+            if (onNavigateHome) onNavigateHome();
+          }}
+          className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out of Account</span>
+        </button>
       </div>
     </div>
   );

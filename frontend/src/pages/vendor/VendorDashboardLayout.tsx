@@ -90,6 +90,19 @@ export const VendorDashboardLayout: React.FC<VendorDashboardLayoutProps> = ({ on
               </button>
             );
           })}
+
+          <div className="pt-2 border-t border-slate-100">
+            <button
+              onClick={() => {
+                logout();
+                onNavigateHome();
+              }}
+              className="w-full p-3 rounded-2xl text-left flex items-center gap-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition"
+            >
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 

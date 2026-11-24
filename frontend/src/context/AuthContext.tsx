@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  // Demo 1-click Quick Login for instantaneous testing of any role
+  // Quick login helper for testing
   const quickLogin = async (role: Role, vendorIndex = 1) => {
     let email = 'student1@canteen.edu';
     if (role === 'ADMIN') {

@@ -5,7 +5,6 @@ import { SocketProvider } from './context/SocketContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
-import { QuickRoleSwitcher } from './components/QuickRoleSwitcher';
 
 // Student Pages
 import { HomePage } from './pages/student/HomePage';
@@ -38,6 +37,15 @@ const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Automatically redirect to home page when signed out of an account
+  React.useEffect(() => {
+    if (!user) {
+      if (currentTab !== 'home' && currentTab !== 'login' && currentTab !== 'register') {
+        setCurrentTab('home');
+      }
+    }
+  }, [user, currentTab]);
+
   // If loading user session
   if (loading) {
     return (
@@ -65,9 +73,6 @@ const AppContent: React.FC = () => {
         onCheckout={() => handleNavigate('checkout')}
         onBrowseMenu={() => handleNavigate('home')}
       />
-
-      {/* Floating Demo Role Switcher */}
-      <QuickRoleSwitcher />
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex-1 w-full">
@@ -109,7 +114,9 @@ const AppContent: React.FC = () => {
           />
         )}
 
-        {currentTab === 'profile' && <ProfilePage />}
+        {currentTab === 'profile' && (
+          <ProfilePage onNavigateHome={() => handleNavigate('home')} />
+        )}
 
         {/* Vendor Dashboard */}
         {currentTab === 'vendor-dashboard' && (

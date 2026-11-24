@@ -5,10 +5,6 @@ import {
   Mail,
   Lock,
   ArrowRight,
-  Shield,
-  Store,
-  GraduationCap,
-  Users,
   AlertCircle,
 } from 'lucide-react';
 
@@ -21,9 +17,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onSuccess,
   onNavigateToRegister,
 }) => {
-  const { login, quickLogin } = useAuth();
-  const [email, setEmail] = useState<string>('student1@canteen.edu');
-  const [password, setPassword] = useState<string>('Password123!');
+  const { login } = useAuth();
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,19 +32,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       onSuccess();
     } catch (err: any) {
       setError(err.message || 'Invalid email or password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleQuickDemo = async (role: any, vendorIdx?: number) => {
-    try {
-      setLoading(true);
-      setError(null);
-      await quickLogin(role, vendorIdx);
-      onSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -119,61 +102,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         </button>
       </form>
 
-      {/* 1-Click Demo Accounts Selector */}
-      <div className="border-t border-slate-100 pt-5 space-y-2.5">
-        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block text-center">
-          ⚡ 1-Click Instant Demo Login
-        </span>
-
-        <div className="grid grid-cols-2 gap-2 text-[11px] font-bold">
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('STUDENT')}
-            className="p-2.5 rounded-xl bg-blue-50 text-blue-800 hover:bg-blue-100 transition flex items-center gap-2"
-          >
-            <GraduationCap className="w-4 h-4 text-blue-600" />
-            <span>Student (Aarav)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('FACULTY')}
-            className="p-2.5 rounded-xl bg-indigo-50 text-indigo-800 hover:bg-indigo-100 transition flex items-center gap-2"
-          >
-            <Users className="w-4 h-4 text-indigo-600" />
-            <span>Faculty (Dr. Joshi)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('VENDOR', 1)}
-            className="p-2.5 rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 transition flex items-center gap-2"
-          >
-            <Store className="w-4 h-4 text-amber-600" />
-            <span>Vendor 1 (Annapurna)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('VENDOR', 2)}
-            className="p-2.5 rounded-xl bg-orange-50 text-orange-800 hover:bg-orange-100 transition flex items-center gap-2"
-          >
-            <Store className="w-4 h-4 text-orange-600" />
-            <span>Vendor 2 (Cafe Zest)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('ADMIN')}
-            className="p-2.5 rounded-xl bg-purple-50 text-purple-900 hover:bg-purple-100 transition flex items-center justify-center gap-2 col-span-2"
-          >
-            <Shield className="w-4 h-4 text-purple-600" />
-            <span>Administrator (Campus Admin)</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="text-center text-xs text-slate-500 pt-2">
+      <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
         Don’t have an account yet?{' '}
         <button
           onClick={onNavigateToRegister}

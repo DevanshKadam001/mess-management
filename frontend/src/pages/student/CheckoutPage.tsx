@@ -244,15 +244,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               </div>
             </div>
 
-            {/* UPI Mock Details Simulation */}
+            {/* UPI QR Details */}
             {paymentMethod === 'UPI' && (
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800">
-                    Mock UPI Gateway Simulation
+                    UPI QR Payment Gateway
                   </span>
-                  <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
-                    Demo Mode Active
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                    Instant Pay
                   </span>
                 </div>
 

@@ -16,6 +16,7 @@ import {
   Shield,
   ChevronRight,
   ExternalLink,
+  LogOut,
 } from 'lucide-react';
 
 interface AdminDashboardLayoutProps {
@@ -23,7 +24,7 @@ interface AdminDashboardLayoutProps {
 }
 
 export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({ onNavigateHome }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('overview');
 
   const navItems = [
@@ -85,6 +86,19 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({ onNa
               </button>
             );
           })}
+
+          <div className="pt-2 border-t border-slate-100">
+            <button
+              onClick={() => {
+                logout();
+                onNavigateHome();
+              }}
+              className="w-full p-3 rounded-2xl text-left flex items-center gap-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition"
+            >
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 
